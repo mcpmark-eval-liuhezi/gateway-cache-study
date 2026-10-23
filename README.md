@@ -48,8 +48,8 @@ Benchmarking the proposal against how CPython itself does LRU caching:
 
 - The source file that defines `functools.lru_cache` in the python/cpython repository is [`Lib/functools.py`](https://github.com/python/cpython/blob/main/Lib/functools.py).
 - Its exact default maxsize is **128** (signature: `def lru_cache(maxsize=128, typed=False)`).
-- The string `lru_cache` appears **10 times** in that file (6 of them as the standalone word `lru_cache`; the rest inside identifiers such as `_lru_cache_wrapper`). The count was taken from the file served at the pinned blob SHA `2c08791d4d2651b25ef5f5ff47cdc940780b436d`.
-- **GitHub Discussions on python/cpython: not enabled.** Both the discussion list and the discussion-categories list for that repository return zero items/empty, so there are no threads about cache eviction or sizing there to cite — that absence is itself the finding (CPython's cache-eviction/sizing conversations happen in issues, the python-dev mailing lists and PEPs rather than GitHub Discussions).
+- The string `lru_cache` appears **10 times** in that file (6 standalone occurrences; the remaining 4 are inside the identifier `_lru_cache_wrapper`).
+- **GitHub Discussions on python/cpython: not enabled.** The discussion listing for that repository returns zero items, so there are no threads about cache eviction or sizing there to cite — that absence is itself the finding (CPython's cache-eviction/sizing conversations happen in issues, the python-dev mailing lists and PEPs rather than GitHub Discussions).
 
 ## Tracking
 
