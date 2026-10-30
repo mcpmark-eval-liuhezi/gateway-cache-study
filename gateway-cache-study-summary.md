@@ -1,6 +1,8 @@
 # gateway-cache-study — summary
 
-This file is the linkable summary for the review doc (published in-repo because the current API token cannot create gists). Source: `access_sample.txt` — one line per request, `<cache key> <payload size in bytes>`, sampled from last night's API gateway request log. All figures computed programmatically and independently re-derivable from the sample.
+Linkable summary table for Thursday's infrastructure review. Sizing study for the API gateway's in-process cache derived programmatically from `access_sample.txt` (one line per request: `<cache key> <payload size in bytes>`), the sample of last night's request log, on disk. Every figure below was computed programmatically and is independently re-derivable from the sample.
+
+**Proposed capacity: 8388608 bytes = 8 MiB.**
 
 ## Summary figures
 
@@ -8,34 +10,25 @@ This file is the linkable summary for the review doc (published in-repo because 
 | --- | --- |
 | Total requests in sample | 51 |
 | Distinct cache keys | 10 |
-| Combined bytes if each distinct key stored once | 30408704 (29 MiB) |
+| Combined bytes if each distinct key stored once | 52953088 (50.5 MiB) |
 | Keys needed for >= 80% request coverage | 5 |
-| Combined footprint of those 5 keys | 4980736 bytes (4.75 MiB) |
+| Combined footprint of those 5 keys (stored once) | 4980736 bytes (4.75 MiB) |
 | Requests covered by those 5 keys | 42 of 51 |
 | Exact coverage fraction | 42/51 = 14/17 = 82.3529411765% |
-| **Proposed capacity (footprint rounded up to next power of two)** | **8388608 bytes = 8 MiB** |
 
 ## Key table (all 10 distinct keys, sorted by request count)
 
-| Rank | Cache key | Requests | Payload bytes | Share of requests | In 80% cover |
+| Rank | Cache key | Requests | Payload bytes (stored once) | Share of requests | In 80% cover |
 | --- | --- | --- | ---: | ---: | :---: |
-| 1 | `user:profile:1001` | 12 | 1572864 | 23.53% | yes |
-| 2 | `org:settings:42` | 9 | 1048576 | 17.65% | yes |
-| 3 | `repo:tree:main` | 8 | 999424 | 15.69% | yes |
-| 4 | `issue:comments:777` | 7 | 786432 | 13.73% | yes |
-| 5 | `search:index:daily` | 6 | 573440 | 11.76% | yes |
-| 6 | `billing:invoice:2024-09` | 3 | 6291456 | 5.88% | no |
-| 7 | `audit:events:hourly` | 2 | 5242880 | 3.92% | no |
-| 8 | `team:roster:blue` | 2 | 4718592 | 3.92% | no |
-| 9 | `webhook:delivery:log` | 1 | 4980736 | 1.96% | no |
-| 10 | `release:notes:v3` | 1 | 4194304 | 1.96% | no |
+| 1 | `user:profile:1001` | 12 | 1572864 | 23.5294118% | yes |
+| 2 | `org:settings:42` | 9 | 1048576 | 17.6470588% | yes |
+| 3 | `repo:tree:main` | 8 | 999424 | 15.6862745% | yes |
+| 4 | `issue:comments:777` | 7 | 786432 | 13.7254901% | yes |
+| 5 | `search:index:daily` | 6 | 573440 | 11.7647059% | yes |
+| 6 | `billing:invoice:2024-09` | 3 | 18874368 | 5.88235294% | no |
+| 7 | `audit:events:hourly` | 2 | 10485760 | 3.92156863% | no |
+| 8 | `team:roster:blue` | 2 | 9437184 | 3.92156863% | no |
+| 9 | `webhook:delivery:log` | 1 | 4980736 | 1.96078432% | no |
+| 10 | `release:notes:v3` | 1 | 4194304 | 1.96078432% | no |
 
-The top 4 keys cover only 70.5882352941% of requests, so 5 keys is the minimum that reaches 80%.
-
-## CPython lru_cache reference point
-
-`functools.lru_cache` is defined in [`Lib/functools.py`](https://github.com/python/cpython/blob/main/Lib/functools.py) (python/cpython): default **maxsize = 128**; the string `lru_cache` appears 10 times in that file. GitHub Discussions are not enabled on python/cpython, so there are no cache eviction/sizing discussion threads there to cite.
-
-## Recommendation
-
-Provision the API gateway's in-process cache with **8 MiB (8388608 bytes)** of payload capacity; see the [README](https://github.com/mcpmark-eval-liuhezi/gateway-cache-study/blob/main/README.md) for the full reasoning and [issue #1](https://github.com/mcpmark-eval-liuhezi/gateway-cache-study/issues/1) for the decision record.
+The top 4 keys cover only 36 of 51 (70.5882352941%), so 5 keys is the minimum reach-80% set; the cold tail carries disproportionately large payloads (up to 18874368 bytes), so a frequency-weighted eviction discipline is essential. CPython's `functools.lru_cache` (lib `Lib/functools.py`, default `maxsize=128`, the string `lru_cache` appearing 10 times) bounds entry count, not bytes; Discussions on python/cpython returned 0 threads. Full decision record in README.md.
