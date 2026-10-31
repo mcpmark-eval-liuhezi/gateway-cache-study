@@ -15,7 +15,7 @@ API gateway in-process cache sizing study, computed programmatically from `acces
 | Exact coverage fraction | 42/51 = 14/17 = 0.8235294117647058 (~82.3529411764706%) |
 | Proposed cache capacity (footprint rounded up to next power of two) | 8388608 bytes = 8 MiB |
 
-Arithmetic check: 12 + 9 + 8 + 7 + 6 = 42 requests; 1572864 + 1048576 + 999424 + 786432 + 573440 = 4980736 bytes; next power of two: 2^22 = 4194304 < 4980736 <= 2^23 = 8388608, so 4980736 -> 8388608 bytes (64 MiB? no — 8 MiB exactly; headroom 3407872 bytes, ~41%).
+Arithmetic check: 12 + 9 + 8 + 7 + 6 = 42 requests; 1572864 + 1048576 + 999424 + 786432 + 573440 = 4980736 bytes; next power of two: 2^22 = 4194304 < 4980736 <= 2^23 = 8388608, so 4980736 -> 8388608 bytes = 8 MiB exactly; headroom 3407872 bytes (~41%).
 
 ## Key table (all 10 distinct keys, sorted by request count desc, then name asc)
 
