@@ -31,11 +31,11 @@ Remaining keys (not needed to reach 80%): billing:invoice:2024-09 (3, 6291456), 
 
 ## Recommendation
 
-We recommend provisioning the API gateway in-process cache with a capacity of 8388608 bytes (8.0 MiB), which is the smallest power of twothat fits the 4980736-byte combined footprint of the five most-frequently-requested keys (user:profile:1001, org:settings:42, repo:tree:main, issue:comments:777, and search:index:daily), covering 14/17 (approximately 82.35%) of all 51 observed requests. This byte-based capacity is derived from observed payload sizes rather than entry counts; if the cache is implemented with CPython's functools.lru_cache, note that its default maxsize is only 128 entries, so an explicit maxsize must be set large enough to hold these five keys plus headroom, and consideration should be given to sizing by memory (bytes) rather than by count, since the largest single key (billing:invoice:2024-09 at 6291456 bytes) exceeds typical small-cache assumptions.
+We recommend provisioning the API gateway in-process cache with a capacity of 8388608 bytes (8.0 MiB), which is the smallest power of two that fits the 4980736-byte combined footprint of the five most-frequently-requested keys (user:profile:1001, org:settings:42, repo:tree:main, issue:comments:777, and search:index:daily), covering 14/17 (approximately 82.35%) of all 51 observed requests. This byte-based capacity is derived from observed payload sizes rather than entry counts; if the cache is implemented with CPython's functools.lru_cache, note that its default maxsize is only 128 entries, so an explicit maxsize must be set large enough to hold these five keys plus headroom, and consideration should be given to sizing by memory (bytes) rather than by count, since the largest single key (billing:invoice:2024-09 at 6291456 bytes) exceeds typical small-cache assumptions.
 
 ## CPython lru_cache Comparison
 
 - Source file: `python/cpython` → `Lib/functools.py`
 - Default `maxsize` for `lru_cache`: 128
 - Occurrences of the string `lru_cache` in `Lib/functools.py`: 10
-- GitHub Discussions in `python/cpython` about cache eviction or sizing: none found (0 discussions; DiscussionsQa not enabled / no threads returned).
+- GitHub Discussions in `python/cpython` about cache eviction or sizing: none found (0 discussions; Discussions not enabled / no threads returned).
